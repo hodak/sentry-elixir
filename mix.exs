@@ -17,13 +17,13 @@ defmodule Sentry.Mixfile do
   def application do
     [
       mod: {Sentry, []},
-      applications: [:hackney, :uuid, :poison, :logger]
+      applications: [:tesla, :uuid, :poison, :logger]
     ]
   end
 
   defp deps do
     [
-      {:hackney, "~> 1.6.1"},
+      {:tesla, "~> 0.5"},
       {:uuid, "~> 1.0"},
       {:poison, "~> 1.5 or ~> 2.0 or ~> 3.0"},
       {:plug, "~> 1.0", optional: true},

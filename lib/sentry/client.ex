@@ -49,20 +49,12 @@ defmodule Sentry.Client do
   end
 
   def request(method, url, headers, body) do
-    case :hackney.request(method, url, headers, body, []) do
-      {:ok, 200, _headers, client} ->
-        case :hackney.body(client) do
-          {:ok, body} ->
-            id = body
-              |> Poison.decode!()
-              |> Map.get("id")
-            {:ok, id}
-          _ ->
-            log_api_error(body)
-            :error
-        end
-      {:ok, status, headers, _client} ->
-        error_header = :proplists.get_value("X-Sentry-Error", headers, "")
+    case Tesla.request(method: method, url: url, headers: headers, body: body) do
+      %Tesla.Env{status: 200, body: resp_body} ->
+        id = resp_body |> Poison.decode! |> Map.get("id")
+        {:ok, id}
+      %Tesla.Env{status: status, headers: resp_headers} ->
+        error_header = resp_headers["x-sentry-error"]
         log_api_error("#{body}\nReceived #{status} from Sentry server: #{error_header}")
         :error
       _ ->
